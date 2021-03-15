@@ -2,19 +2,21 @@
 
 namespace App\Console\Commands;
 
+use App\Console\Commands\Concerns\HidesTracks;
 use App\Mail\StockDetected;
 use App\Models\Notification;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
-use Nesk\Puphpeteer\Puppeteer;
 use Nesk\Rialto\Data\JsFunction;
 
-use function app;
 use function config;
 use function public_path;
+use function rand;
 
 class CheckSmyths extends Command
 {
+    use HidesTracks;
+
     protected $signature = 'check:smyths';
 
     protected $description = "Check Smyth's for XAA stock";
@@ -22,19 +24,19 @@ class CheckSmyths extends Command
     /** @noinspection PhpUndefinedMethodInspection */
     public function handle()
     {
-        $browser = (new Puppeteer())->launch(['headless' => ! app()->environment('local')]);
-
-        $page = $browser->newPage();
+        [$browser, $page] = $this->setupBrowser();
 
         $page->goto('https://www.smythstoys.com/uk/en-gb/shop-xaa', [
             'waitUntil' => 'networkidle2'
         ]);
 
-        $page
-            ->waitForSelector('#delivery-channel-hd')
-            ->click();
+        $page->waitForSelector('#delivery-channel-hd');
 
-        $page->waitFor(500);
+        $page->waitFor(rand(500, 3000));
+
+        $page->querySelector('#delivery-channel-hd')->click();
+
+        $page->waitFor(rand(500, 3000));
 
         $element = $page->querySelector('.errorSelectAnother');
 

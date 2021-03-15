@@ -24,8 +24,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-         $schedule->command('check:game')->everyMinute()->withoutOverlapping();
-         $schedule->command('check:smyths')->everyMinute()->withoutOverlapping();
+         $schedule->command('check:game')->everyFiveMinutes()->withoutOverlapping();
+         $schedule->command('check:smyths')->everyThirtyMinutes()->withoutOverlapping();
     }
 
     /**

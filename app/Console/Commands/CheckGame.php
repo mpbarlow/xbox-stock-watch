@@ -2,34 +2,29 @@
 
 namespace App\Console\Commands;
 
+use App\Console\Commands\Concerns\HidesTracks;
 use App\Mail\StockDetected;
 use App\Models\Notification;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
-use Nesk\Puphpeteer\Puppeteer;
 use Nesk\Rialto\Data\JsFunction;
 
-use function app;
 use function collect;
 use function config;
 use function public_path;
-use function str_contains;
+use function rand;
 
 class CheckGame extends Command
 {
+    use HidesTracks;
+
     protected $signature = 'check:game';
 
     protected $description = 'Check Game for XAA stock';
 
-    /**
-     * @noinspection PhpUndefinedMethodInspection
-     * @noinspection JSUnresolvedVariable
-     */
     public function handle()
     {
-        $browser = (new Puppeteer())->launch(['headless' => ! app()->environment('local')]);
-
-        $page = $browser->newPage();
+        [$browser, $page] = $this->setupBrowser();
 
         $page->goto('https://xboxallaccess.game.co.uk/new-to-xbox-all-access', [
             'waitUntil' => 'networkidle2'
@@ -44,7 +39,7 @@ class CheckGame extends Command
             )
             ->click();
 
-        $page->waitFor(250);
+        $page->waitFor(rand(500, 3000));
 
         $this
             ->elementContaining(
@@ -55,7 +50,7 @@ class CheckGame extends Command
             )
             ->click();
 
-        $page->waitFor(250);
+        $page->waitFor(rand(500, 3000));
 
         $this
             ->elementContaining(
@@ -66,7 +61,7 @@ class CheckGame extends Command
             )
             ->click();
 
-        $page->waitFor(250);
+        $page->waitFor(rand(500, 3000));
 
         $this
             ->elementContaining(
@@ -77,7 +72,7 @@ class CheckGame extends Command
             )
             ->click();
 
-        $page->waitFor(250);
+        $page->waitFor(rand(500, 3000));
 
         $seriesX = $this->elementContaining(
             $page->querySelectorAll('.selection-card'),
